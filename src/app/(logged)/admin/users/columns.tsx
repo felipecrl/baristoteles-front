@@ -14,11 +14,17 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 
+import { deleteUser } from '@/app/api/admin/users/route'
+
 export type UsersProps = {
   id: string
   name: string
   email: string
-  role: string
+  roles: string
+}
+
+async function deleteSelectedUser(value: string) {
+  await deleteUser(value)
 }
 
 export const columns: ColumnDef<UsersProps>[] = [
@@ -51,7 +57,7 @@ export const columns: ColumnDef<UsersProps>[] = [
     }
   },
   {
-    accessorKey: 'role',
+    accessorKey: 'roles',
     header: ({ column }) => {
       return (
         <Button
@@ -83,7 +89,9 @@ export const columns: ColumnDef<UsersProps>[] = [
                 <DropdownMenuItem>Editar usuário</DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Excluir usuário</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => deleteSelectedUser(user.id)}>
+                Excluir usuário
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

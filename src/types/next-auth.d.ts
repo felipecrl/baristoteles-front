@@ -9,5 +9,6 @@ declare module 'next-auth' {
       roles: string
       avatar_url: string
     }
+    token: string
   }
 }

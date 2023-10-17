@@ -59,7 +59,12 @@ export function FormNewUser() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    const result = await createUser({ values: values })
+    const newValues = {
+      ...values,
+      roles: 'user'
+    }
+
+    const result = await createUser({ values: newValues })
 
     const data = await result.json()
 

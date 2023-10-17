@@ -1,8 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { useRouter } from 'next/navigation'
+
+import { createNewUser } from '@/app/api/admin/users/route'
 
 import {
   Form,
@@ -21,6 +25,11 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import Spiner from '@/components/spiner'
+
+interface FormEditCreateUserProps {
+  token: string | undefined
+}
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -37,7 +46,10 @@ const formSchema = z.object({
   })
 })
 
-export function FormEditCreateUser() {
+export function FormEditCreateUser({ token }: FormEditCreateUserProps) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,8 +59,14 @@ export function FormEditCreateUser() {
     }
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
+
+    await createNewUser(token, values)
+
+    setIsLoading(false)
+
+    router.replace('/admin/users')
   }
 
   return (
@@ -116,7 +134,9 @@ export function FormEditCreateUser() {
         />
 
         <div className="flex justify-end">
-          <Button type="submit">Adicionar usuário</Button>
+          <Button type="submit" disabled={isLoading} variant="default">
+            {isLoading && <Spiner />}Adicionar usuário
+          </Button>
         </div>
       </form>
     </Form>

@@ -1,79 +1,17 @@
-import { UsersProps, columns } from './columns'
+import { getServerSession } from 'next-auth'
+
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { getData } from '@/app/api/admin/users/route'
+
+import { columns } from '@/app/(logged)/admin/users/columns'
 import { DataTable } from '@/components/dataTable'
 
-async function getData(): Promise<UsersProps[]> {
-  return [
-    {
-      id: '728ed52f',
-      name: 'José Coelho',
-      email: 'jose@example.com',
-      role: 'user'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    },
-    {
-      id: '728ed3gf',
-      name: 'Felipe Coelho',
-      email: 'felipe@example.com',
-      role: 'admin'
-    }
-  ]
-}
-
 export default async function ListUsers() {
-  const data = await getData()
+  const session = await getServerSession(authOptions)
+
+  const response = await getData(session?.token)
+
+  const { data } = response
 
   return <DataTable columns={columns} data={data} />
 }

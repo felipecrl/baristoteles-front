@@ -1,5 +1,11 @@
+import { getServerSession } from 'next-auth'
+
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+
 import { FormEditCreateUser } from '@/components/formEditCreateUser'
 
 export default async function CreateUsers() {
-  return <FormEditCreateUser />
+  const session = await getServerSession(authOptions)
+
+  return <FormEditCreateUser token={session?.token} />
 }
