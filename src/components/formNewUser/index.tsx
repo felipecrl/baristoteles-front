@@ -1,9 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { useRouter } from 'next/navigation'
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 
 import {
   Form,
@@ -16,6 +19,10 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { H1, H2 } from '@/components/ui/typography'
+import Spiner from '@/components/spiner'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+
+import { createUser } from '@/app/api/register/route'
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -36,6 +43,10 @@ const formSchema = z.object({
 })
 
 export function FormNewUser() {
+  const router = useRouter()
+  const [formError, setFormError] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,8 +56,20 @@ export function FormNewUser() {
     }
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
+
+    const result = await createUser({ values: values })
+
+    const data = await result.json()
+
+    if (data?.status === 'error') {
+      setFormError(true)
+      setIsLoading(false)
+      return
+    }
+
+    router.replace('/login')
   }
 
   return (
@@ -54,8 +77,19 @@ export function FormNewUser() {
       <div className="p-8">
         <H1 className="mb-6 flex justify-center font-semibold">Baristóteles</H1>
         <H2 className="mb-8 flex justify-center border-0">
-          Registrar novo usuário
+          Criar novo usuário
         </H2>
+
+        {formError && (
+          <Alert variant="destructive" className="mb-6">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTitle>Erro</AlertTitle>
+            <AlertDescription>
+              Já existe um usuário cadastrado com este e-mail.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -81,7 +115,7 @@ export function FormNewUser() {
                 <FormItem className="mb-6">
                   <FormLabel>E-mail</FormLabel>
                   <FormControl>
-                    <Input placeholder="exemplo@exemplo.com" {...field} />
+                    <Input placeholder="nome@dominio.com.br" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -100,7 +134,13 @@ export function FormNewUser() {
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit" variant="default">
+            <Button
+              className="w-full"
+              type="submit"
+              variant="default"
+              disabled={isLoading}
+            >
+              {isLoading && <Spiner />}
               Registrar
             </Button>
             <div className="flex justify-center">

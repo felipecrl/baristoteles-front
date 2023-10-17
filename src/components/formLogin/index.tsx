@@ -1,9 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 
 import {
   Form,
@@ -16,6 +20,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { H1, H2 } from '@/components/ui/typography'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import Spiner from '@/components/spiner'
 
 const formSchema = z.object({
   email: z
@@ -32,6 +38,10 @@ const formSchema = z.object({
 })
 
 export default function FormLogin() {
+  const router = useRouter()
+  const [formError, setFormError] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,8 +50,22 @@ export default function FormLogin() {
     }
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
+
+    const result = await signIn('credentials', {
+      email: values.email,
+      password: values.password,
+      redirect: false
+    })
+
+    if (result?.error) {
+      setFormError(true)
+      setIsLoading(false)
+      return
+    }
+
+    router.replace('/home')
   }
 
   return (
@@ -51,6 +75,14 @@ export default function FormLogin() {
         <H2 className="mb-8 flex justify-center border-0">
           Faça login em sua conta
         </H2>
+
+        {formError && (
+          <Alert variant="destructive" className="mb-6">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTitle>Erro</AlertTitle>
+            <AlertDescription>Login ou senha inválidos.</AlertDescription>
+          </Alert>
+        )}
 
         <Form {...form}>
           <form
@@ -91,7 +123,13 @@ export default function FormLogin() {
                 Esqueceu a senha?
               </Link>
             </div>
-            <Button className="w-full" type="submit" variant="default">
+            <Button
+              className="w-full"
+              type="submit"
+              variant="default"
+              disabled={isLoading}
+            >
+              {isLoading && <Spiner />}
               Entrar
             </Button>
             <div className="flex justify-center">

@@ -1,7 +1,13 @@
+import { getServerSession } from 'next-auth'
+
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+
 import UserNav from '@/components/userNav'
 import Nav from '@/components/nav'
 
-export default function Header() {
+export default async function Header() {
+  const session = await getServerSession(authOptions)
+
   return (
     <header className="container mx-auto px-16 pt-5">
       <div className="flex h-20 items-center justify-between rounded-lg bg-white p-6 shadow">
@@ -23,7 +29,7 @@ export default function Header() {
 
         <Nav />
 
-        <UserNav />
+        <UserNav user={session?.user || undefined} />
       </div>
     </header>
   )

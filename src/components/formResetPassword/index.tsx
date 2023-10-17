@@ -1,8 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
 
 import {
   Form,
@@ -15,6 +18,10 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { H1, H2, Paragraph } from '@/components/ui/typography'
+import Spiner from '@/components/spiner'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+
+import { resetPassword } from '@/app/api/password/reset/route'
 
 const formSchema = z
   .object({
@@ -37,6 +44,13 @@ const formSchema = z
   })
 
 export default function FormResetPassword() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [formError, setFormError] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const token = searchParams.get('token')
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,8 +59,30 @@ export default function FormResetPassword() {
     }
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
+
+    const payload = {
+      token,
+      password: values.password,
+      password_confirmation: values.password_confirmation
+    }
+
+    await resetPassword(payload)
+      .then((response) => {
+        if (!response.ok) {
+          setFormError(true)
+          return
+        }
+
+        router.replace('/login')
+      })
+      .catch((error) => {
+        console.log('ERROR', error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
   }
 
   return (
@@ -56,6 +92,17 @@ export default function FormResetPassword() {
         <H2 className="mb-8 flex justify-center border-0">
           Recuperação de senha
         </H2>
+
+        {formError && (
+          <Alert variant="destructive" className="mb-6">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTitle>Erro</AlertTitle>
+            <AlertDescription>
+              Senha errada ou token expirado. Tente novamente!
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Paragraph className="mb-4 flex justify-start text-sm leading-tight tracking-tight text-gray-900 dark:text-white">
           Digite sua nova senha.
         </Paragraph>
@@ -90,7 +137,13 @@ export default function FormResetPassword() {
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit" variant="default">
+            <Button
+              className="w-full"
+              type="submit"
+              variant="default"
+              disabled={isLoading}
+            >
+              {isLoading && <Spiner />}
               Enviar
             </Button>
           </form>
