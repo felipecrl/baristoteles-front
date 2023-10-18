@@ -1,5 +1,11 @@
+import { getServerSession } from 'next-auth'
+
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+
 import { FormEditCreatePub } from '@/components/formEditCreatePub'
 
 export default async function CreatePubs() {
-  return <FormEditCreatePub />
+  const session = await getServerSession(authOptions)
+
+  return <FormEditCreatePub token={session?.token} />
 }

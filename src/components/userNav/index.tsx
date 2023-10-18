@@ -61,15 +61,19 @@ export default function UserNav({ user }: UserNavProps) {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <Link href="/admin/users">
-              <DropdownMenuItem>Gerenciar Usuários</DropdownMenuItem>
-            </Link>
-            <Link href="/admin/pubs">
-              <DropdownMenuItem>Gerenciar Bares</DropdownMenuItem>
-            </Link>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
+          {user?.roles === 'admin' && (
+            <>
+              <DropdownMenuGroup>
+                <Link href="/admin/users">
+                  <DropdownMenuItem>Gerenciar Usuários</DropdownMenuItem>
+                </Link>
+                <Link href="/admin/pubs">
+                  <DropdownMenuItem>Gerenciar Bares</DropdownMenuItem>
+                </Link>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+            </>
+          )}
           <Link href="/profile">
             <DropdownMenuItem>Perfil</DropdownMenuItem>
           </Link>

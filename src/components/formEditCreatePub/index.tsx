@@ -1,8 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { useRouter } from 'next/navigation'
+
+import { createNewPub, updatePub } from '@/app/api/admin/pubs/route'
+import { PubsProps } from '@/app/(logged)/admin/pubs/columns'
 
 import {
   Form,
@@ -14,6 +19,12 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import Spiner from '@/components/spiner'
+
+interface FormEditCreatePubProps {
+  token: string | undefined
+  data: PubsProps
+}
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -34,21 +45,34 @@ const formSchema = z.object({
   })
 })
 
-export function FormEditCreatePub() {
+export function FormEditCreatePub({ token, data }: FormEditCreatePubProps) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      address: '',
-      number: '',
-      neighborhood: '',
-      instagram: '',
-      recommendation: ''
+      name: data?.name,
+      address: data?.address,
+      number: data?.number,
+      neighborhood: data?.neighborhood,
+      instagram: data?.instagram,
+      recommendation: data?.recommendation
     }
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true)
+
+    if (data) {
+      await updatePub(token, values, data.id)
+    } else {
+      await createNewPub(token, values)
+    }
+
+    setIsLoading(false)
+
+    router.replace('/admin/pubs')
   }
 
   return (
@@ -135,7 +159,10 @@ export function FormEditCreatePub() {
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit">Adicionar bar</Button>
+          <Button type="submit" disabled={isLoading} variant="default">
+            {isLoading && <Spiner />}
+            {!data ? 'Adicionar bar' : 'Salvar bar'}
+          </Button>
         </div>
       </form>
     </Form>

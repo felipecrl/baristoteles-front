@@ -1,4 +1,8 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth'
+
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 import { SidebarNav } from '@/components/sidebarNav'
 import { H2 } from '@/components/ui/typography'
@@ -18,11 +22,16 @@ const menuItems = [
   }
 ]
 
-export default function AdminUsersLayout({
+export default async function AdminUsersLayout({
   children
 }: {
   children: React.ReactNode
 }) {
+  const session = await getServerSession(authOptions)
+
+  if (session && session.user.roles !== 'admin') {
+    redirect('/home')
+  }
   return (
     <>
       <H2 className="mb-8">GERENCIAR USUÁRIOS</H2>

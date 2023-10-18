@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react'
 
+import { deletePub } from '@/app/api/admin/pubs/route'
+
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -22,6 +24,11 @@ export type PubsProps = {
   neighborhood: string
   instagram: string
   recommendation: string
+  cover: string
+}
+
+async function deleteSelectedPub(value: string) {
+  await deletePub(value)
 }
 
 export const columns: ColumnDef<PubsProps>[] = [
@@ -86,7 +93,9 @@ export const columns: ColumnDef<PubsProps>[] = [
                 <DropdownMenuItem>Editar bar</DropdownMenuItem>
               </Link>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Excluir bar</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => deleteSelectedPub(pub.id)}>
+                Excluir bar
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

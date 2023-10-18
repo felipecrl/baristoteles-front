@@ -6,7 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useRouter } from 'next/navigation'
 
-import { createNewUser } from '@/app/api/admin/users/route'
+import { createNewUser, updateUser } from '@/app/api/admin/users/route'
+import { UsersProps } from '@/app/(logged)/admin/users/columns'
 
 import {
   Form,
@@ -29,6 +30,7 @@ import Spiner from '@/components/spiner'
 
 interface FormEditCreateUserProps {
   token: string | undefined
+  data: UsersProps
 }
 
 const formSchema = z.object({
@@ -46,23 +48,27 @@ const formSchema = z.object({
   })
 })
 
-export function FormEditCreateUser({ token }: FormEditCreateUserProps) {
+export function FormEditCreateUser({ token, data }: FormEditCreateUserProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      roles: ''
+      name: data?.name,
+      email: data?.email,
+      roles: data?.roles
     }
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    await createNewUser(token, values)
+    if (data) {
+      await updateUser(token, values, data.id)
+    } else {
+      await createNewUser(token, values)
+    }
 
     setIsLoading(false)
 
@@ -119,23 +125,25 @@ export function FormEditCreateUser({ token }: FormEditCreateUserProps) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="mb-6">
-              <FormLabel>Senha</FormLabel>
-              <FormControl>
-                <Input placeholder="••••••••" {...field} type="password" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        {!data && (
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="mb-6">
+                <FormLabel>Senha</FormLabel>
+                <FormControl>
+                  <Input placeholder="••••••••" {...field} type="password" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <div className="flex justify-end">
           <Button type="submit" disabled={isLoading} variant="default">
-            {isLoading && <Spiner />}Adicionar usuário
+            {isLoading && <Spiner />}
+            {!data ? 'Adicionar usuário' : 'Salvar usuário'}
           </Button>
         </div>
       </form>
