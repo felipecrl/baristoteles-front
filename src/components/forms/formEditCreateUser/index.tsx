@@ -30,7 +30,7 @@ import Spiner from '@/components/spiner'
 
 interface FormEditCreateUserProps {
   token: string | undefined
-  data: UsersProps
+  data?: UsersProps
 }
 
 const formSchema = z.object({

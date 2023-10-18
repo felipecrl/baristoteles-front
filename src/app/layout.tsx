@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/toaster'
 const inter = Open_Sans({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Baristóteles',
+  title: 'Baristóteles | Bem Vindo!',
   description: 'Implementando a filosofia de boteco'
 }
 

@@ -1,7 +1,7 @@
 import { H2, Paragraph } from '@/components/ui/typography'
 import Banners from '@/components/banners'
 import PubCard from '@/components/pubCard'
-import { FormNewsletter } from '@/components/formNewsletter'
+import { FormNewsletter } from '@/components/forms/formNewsletter'
 
 export default function Home() {
   return (

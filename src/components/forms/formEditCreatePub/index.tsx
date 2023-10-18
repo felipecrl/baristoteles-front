@@ -23,7 +23,7 @@ import Spiner from '@/components/spiner'
 
 interface FormEditCreatePubProps {
   token: string | undefined
-  data: PubsProps
+  data?: PubsProps
 }
 
 const formSchema = z.object({

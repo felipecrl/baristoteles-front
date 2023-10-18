@@ -1,5 +1,5 @@
 import Banners from '@/components/banners'
-import { FormContact } from '@/components/formContact'
+import { FormContact } from '@/components/forms/formContact'
 import { H2, H3, Paragraph } from '@/components/ui/typography'
 
 export default function Contact() {
