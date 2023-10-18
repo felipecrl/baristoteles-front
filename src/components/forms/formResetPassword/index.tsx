@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
+import { ExclamationTriangleIcon, RocketIcon } from '@radix-ui/react-icons'
 
 import {
   Form,
@@ -47,6 +47,7 @@ export default function FormResetPassword() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [formError, setFormError] = useState<boolean>(false)
+  const [formSuccess, setFormSuccess] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const token = searchParams.get('token')
@@ -68,21 +69,16 @@ export default function FormResetPassword() {
       password_confirmation: values.password_confirmation
     }
 
-    await resetPassword(payload)
-      .then((response) => {
-        if (!response.ok) {
-          setFormError(true)
-          return
-        }
+    const result = await resetPassword(payload)
 
-        router.replace('/login')
-      })
-      .catch((error) => {
-        console.log('ERROR', error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    if (!result.ok) {
+      setFormError(true)
+      setIsLoading(false)
+      return
+    }
+
+    setFormSuccess(true)
+    setIsLoading(false)
   }
 
   return (
@@ -103,51 +99,81 @@ export default function FormResetPassword() {
           </Alert>
         )}
 
-        <Paragraph className="mb-4 flex justify-start text-sm leading-tight tracking-tight text-gray-900 dark:text-white">
-          Digite sua nova senha.
-        </Paragraph>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 md:space-y-6"
-          >
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem className="mb-6">
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <Input placeholder="••••••••" type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password_confirmation"
-              render={({ field }) => (
-                <FormItem className="mb-6">
-                  <FormLabel>Confirmar senha</FormLabel>
-                  <FormControl>
-                    <Input placeholder="••••••••" type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {!formSuccess ? (
+          <>
+            <Paragraph className="mb-4 flex justify-start text-sm leading-tight tracking-tight text-gray-900 dark:text-white">
+              Digite sua nova senha.
+            </Paragraph>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4 md:space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem className="mb-6">
+                      <FormLabel>Senha</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="••••••••"
+                          type="password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password_confirmation"
+                  render={({ field }) => (
+                    <FormItem className="mb-6">
+                      <FormLabel>Confirmar senha</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="••••••••"
+                          type="password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  className="w-full"
+                  type="submit"
+                  variant="default"
+                  disabled={isLoading}
+                >
+                  {isLoading && <Spiner />}
+                  Enviar
+                </Button>
+              </form>
+            </Form>
+          </>
+        ) : (
+          <>
+            <Alert className="mb-6">
+              <RocketIcon className="h-4 w-4" />
+              <AlertTitle>Cheers!</AlertTitle>
+              <AlertDescription>
+                Senha alterada com sucesso, retorne a página de login e refaça
+                seu login.
+              </AlertDescription>
+            </Alert>
             <Button
               className="w-full"
-              type="submit"
-              variant="default"
-              disabled={isLoading}
+              type="button"
+              onClick={() => router.replace('/login')}
             >
-              {isLoading && <Spiner />}
-              Enviar
+              Voltar para login
             </Button>
-          </form>
-        </Form>
+          </>
+        )}
       </div>
     </div>
   )

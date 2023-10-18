@@ -1,9 +1,32 @@
+import { getServerSession } from 'next-auth'
+
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { getData } from '@/app/api/home/route'
+
 import { H2, Paragraph } from '@/components/ui/typography'
 import Banners from '@/components/banners'
 import PubCard from '@/components/pubCard'
 import { FormNewsletter } from '@/components/forms/formNewsletter'
 
-export default function Home() {
+export default async function Home() {
+  const session = await getServerSession(authOptions)
+
+  const response = await getData(session?.token)
+
+  const { data } = response
+
+  console.log(data)
+
+  const renderNextPubs = () => {
+    const nextPubs = data.map((pub) => <PubCard key={pub.id} data={pub} />)
+    return nextPubs
+  }
+
+  const renderLastPubs = () => {
+    const lastPubs = data.map((pub) => <PubCard key={pub.id} data={pub} />)
+    return lastPubs
+  }
+
   return (
     <>
       <Banners
@@ -16,15 +39,14 @@ export default function Home() {
       <div className="mt-16">
         <H2>Próximos Bares</H2>
         <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <PubCard />
-          <PubCard />
+          {renderNextPubs()}
         </div>
       </div>
 
       <div className="mt-16">
         <H2>Últimos Bares Visitados</H2>
         <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <PubCard />
+          {renderLastPubs()}
         </div>
       </div>
 

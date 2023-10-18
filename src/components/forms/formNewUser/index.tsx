@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useRouter } from 'next/navigation'
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons'
+import { signIn } from 'next-auth/react'
 
 import {
   Form,
@@ -74,7 +75,13 @@ export function FormNewUser() {
       return
     }
 
-    router.replace('/login')
+    await signIn('credentials', {
+      email: values.email,
+      password: values.password,
+      redirect: false
+    })
+
+    router.replace('/home')
   }
 
   return (
