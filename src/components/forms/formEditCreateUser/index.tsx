@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useRouter } from 'next/navigation'
 
-import { createNewUser, updateUser } from '@/app/api/admin/users/route'
+import { createNewUser, updateUser } from '@/services/admin/users'
 import { UsersProps } from '@/app/(logged)/admin/users/columns'
 
 import {
@@ -34,26 +34,49 @@ interface FormEditCreateUserProps {
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, {
-    message: 'Campo obrigatório'
+  name: z.string({
+    required_error: 'Campo obrigatório'
   }),
-  email: z.string().min(1, { message: 'Campo obrigatório' }).email({
-    message: 'E-mail inválido'
+  email: z
+    .string({
+      required_error: 'Campo obrigatório'
+    })
+    .email({
+      message: 'E-mail inválido'
+    }),
+  roles: z.string({
+    required_error: 'Campo obrigatório'
   }),
-  roles: z.string().min(1, {
-    message: 'Campo obrigatório'
-  }),
-  password: z.string().min(1, {
-    message: 'Campo obrigatório'
+  password: z.string({
+    required_error: 'Campo obrigatório'
   })
+})
+
+const formSchemaPasswordOptional = z.object({
+  name: z.string({
+    required_error: 'Campo obrigatório'
+  }),
+  email: z
+    .string({
+      required_error: 'Campo obrigatório'
+    })
+    .email({
+      message: 'E-mail inválido'
+    }),
+  roles: z.string({
+    required_error: 'Campo obrigatório'
+  }),
+  password: z.string().optional()
 })
 
 export function FormEditCreateUser({ token, data }: FormEditCreateUserProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const schema = !data ? formSchema : formSchemaPasswordOptional
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
       name: data?.name,
       email: data?.email,
@@ -61,7 +84,7 @@ export function FormEditCreateUser({ token, data }: FormEditCreateUserProps) {
     }
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof schema>) {
     setIsLoading(true)
 
     if (data) {

@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { getUserById } from '@/app/api/admin/users/route'
+import { getUserById } from '@/services/admin/users'
 
 import { FormEditCreateUser } from '@/components/forms/formEditCreateUser'
 

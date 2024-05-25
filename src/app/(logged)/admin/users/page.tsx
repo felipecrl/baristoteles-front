@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { getData } from '@/app/api/admin/users/route'
+import { getData } from '@/services/admin/users'
 
 import { columns } from '@/app/(logged)/admin/users/columns'
 import { DataTable } from '@/components/dataTable'

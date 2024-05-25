@@ -13,8 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { toast } from '@/components/ui/use-toast'
 
-import { deleteUser } from '@/app/api/admin/users/route'
+import { deleteUser } from '@/services/admin/users'
 
 export type UsersProps = {
   id: string
@@ -25,6 +26,10 @@ export type UsersProps = {
 
 async function deleteSelectedUser(value: string) {
   await deleteUser(value)
+
+  toast({
+    title: 'Usuário removido com sucesso!'
+  })
 }
 
 export const columns: ColumnDef<UsersProps>[] = [

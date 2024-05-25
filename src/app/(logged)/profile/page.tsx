@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { getData } from '@/app/api/profile/route'
+import { getData } from '@/services/profile'
 
 import { H2 } from '@/components/ui/typography'
 

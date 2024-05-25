@@ -22,7 +22,7 @@ import { H1, H2, Paragraph } from '@/components/ui/typography'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import Spiner from '@/components/spiner'
 
-import { forgotPassword } from '@/app/api/password/forgot/route'
+import { forgotPassword } from '@/services/password/forgot'
 
 const formSchema = z.object({
   email: z

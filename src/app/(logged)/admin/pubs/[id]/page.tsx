@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth'
+import { parseISO } from 'date-fns'
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { getPubById } from '@/app/api/admin/pubs/route'
+import { getPubById } from '@/services/admin/pubs'
 
 import { FormEditCreatePub } from '@/components/forms/formEditCreatePub'
 
@@ -11,5 +12,12 @@ export default async function EditPub({ params }: { params: { id: string } }) {
 
   const response = await getPubById(session?.token, id)
 
-  return <FormEditCreatePub token={session?.token} data={response} />
+  const parseDate = parseISO(response.date)
+
+  const data = {
+    ...response,
+    date: parseDate
+  }
+
+  return <FormEditCreatePub token={session?.token} data={data} />
 }

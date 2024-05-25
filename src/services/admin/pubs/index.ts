@@ -14,6 +14,7 @@ interface CreatePubProps {
   neighborhood: string
   instagram: string
   recommendation: string
+  date: string
 }
 
 interface UpdatePubProps {
@@ -23,6 +24,7 @@ interface UpdatePubProps {
   neighborhood: string
   instagram: string
   recommendation: string
+  date: string
 }
 
 export async function getData(
@@ -34,7 +36,7 @@ export async function getData(
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    next: { revalidate: 0 }
+    cache: 'no-store'
   })
 
   if (!res.ok) {
@@ -56,7 +58,7 @@ export async function getPubById(
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    next: { revalidate: 0 }
+    cache: 'no-store'
   })
 
   if (!res.ok) {

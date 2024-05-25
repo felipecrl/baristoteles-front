@@ -23,7 +23,7 @@ import { H1, H2 } from '@/components/ui/typography'
 import Spiner from '@/components/spiner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
-import { createUser } from '@/app/api/register/route'
+import { createUser } from '@/services/register'
 
 const formSchema = z.object({
   name: z.string().min(1, {

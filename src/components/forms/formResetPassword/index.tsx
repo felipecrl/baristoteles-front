@@ -21,7 +21,7 @@ import { H1, H2, Paragraph } from '@/components/ui/typography'
 import Spiner from '@/components/spiner'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
-import { resetPassword } from '@/app/api/password/reset/route'
+import { resetPassword } from '@/services/password/reset'
 
 const formSchema = z
   .object({

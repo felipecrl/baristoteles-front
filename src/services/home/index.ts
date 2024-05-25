@@ -16,7 +16,7 @@ export async function getData(
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    next: { revalidate: 0 }
+    cache: 'no-store'
   })
 
   if (!res.ok) {

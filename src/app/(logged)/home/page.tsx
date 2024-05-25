@@ -1,7 +1,8 @@
 import { getServerSession } from 'next-auth'
+import { isFuture, isPast } from 'date-fns'
 
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { getData } from '@/app/api/home/route'
+import { getData } from '@/services/home'
 
 import { H2, Paragraph } from '@/components/ui/typography'
 import Banners from '@/components/banners'
@@ -15,16 +16,20 @@ export default async function Home() {
 
   const { data } = response
 
-  console.log(data)
-
   const renderNextPubs = () => {
-    const nextPubs = data.map((pub) => <PubCard key={pub.id} data={pub} />)
-    return nextPubs
+    const filterPubs = data.filter((pub) =>
+      isFuture(new Date(Date.parse(pub.date)))
+    )
+
+    return filterPubs.map((pub) => <PubCard key={pub.id} data={pub} />)
   }
 
   const renderLastPubs = () => {
-    const lastPubs = data.map((pub) => <PubCard key={pub.id} data={pub} />)
-    return lastPubs
+    const filterPubs = data.filter((pub) =>
+      isPast(new Date(Date.parse(pub.date)))
+    )
+
+    return filterPubs.map((pub) => <PubCard key={pub.id} data={pub} />)
   }
 
   return (
@@ -50,12 +55,20 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="mt-16 flex space-x-16">
+      <div className="mt-16 flex space-x-12">
         <div>
           <H2 className="mb-6">Newsletter</H2>
           <Paragraph className="mb-6">
             Quer ficar por dentro do melhores bares de BH? Assine nossa
             newsletter.
+          </Paragraph>
+
+          <FormNewsletter />
+        </div>
+        <div>
+          <H2 className="mb-6">Indique</H2>
+          <Paragraph className="mb-6">
+            Indique um bar para que possamos ir, e junte-se a nós!
           </Paragraph>
 
           <FormNewsletter />

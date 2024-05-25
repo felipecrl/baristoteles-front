@@ -5,10 +5,17 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useRouter } from 'next/navigation'
+import { CalendarIcon } from '@radix-ui/react-icons'
+import { format, formatISO } from 'date-fns'
+import { cn } from '@/lib/utils'
 
-import { createNewPub, updatePub } from '@/app/api/admin/pubs/route'
-import { PubsProps } from '@/app/(logged)/admin/pubs/columns'
+import { createNewPub, updatePub } from '@/services/admin/pubs'
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
 import {
   Form,
   FormControl,
@@ -20,7 +27,19 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import Spiner from '@/components/spiner'
+import { Calendar } from '@/components/ui/calendar'
 
+export type PubsProps = {
+  id: string
+  name: string
+  address: string
+  number: string
+  neighborhood: string
+  instagram: string
+  recommendation: string
+  cover: string
+  date: Date
+}
 interface FormEditCreatePubProps {
   token: string | undefined
   data?: PubsProps
@@ -42,6 +61,9 @@ const formSchema = z.object({
   instagram: z.string(),
   recommendation: z.string().min(1, {
     message: 'Campo obrigatório'
+  }),
+  date: z.date({
+    required_error: 'A date of birth is required.'
   })
 })
 
@@ -57,17 +79,23 @@ export function FormEditCreatePub({ token, data }: FormEditCreatePubProps) {
       number: data?.number,
       neighborhood: data?.neighborhood,
       instagram: data?.instagram,
-      recommendation: data?.recommendation
+      recommendation: data?.recommendation,
+      date: data?.date
     }
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
+    const newValues = {
+      ...values,
+      date: formatISO(values.date).toString()
+    }
+
     if (data) {
-      await updatePub(token, values, data.id)
+      await updatePub(token, newValues, data.id)
     } else {
-      await createNewPub(token, values)
+      await createNewPub(token, newValues)
     }
 
     setIsLoading(false)
@@ -132,19 +160,60 @@ export function FormEditCreatePub({ token, data }: FormEditCreatePubProps) {
             )}
           />
         </div>
-        <FormField
-          control={form.control}
-          name="instagram"
-          render={({ field }) => (
-            <FormItem className="mb-8">
-              <FormLabel>Instagram</FormLabel>
-              <FormControl>
-                <Input placeholder="http://instagram.com/" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <FormItem className="mb-8">
+                <FormLabel>Data</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'w-full text-left font-normal',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, 'd/M/yyyy')
+                        ) : (
+                          <span>Selecione a data</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="instagram"
+            render={({ field }) => (
+              <FormItem className="mb-8">
+                <FormLabel>Instagram</FormLabel>
+                <FormControl>
+                  <Input placeholder="http://instagram.com/" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="recommendation"

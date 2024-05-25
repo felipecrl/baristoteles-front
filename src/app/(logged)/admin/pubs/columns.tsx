@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal, ArrowUpDown } from 'lucide-react'
 
-import { deletePub } from '@/app/api/admin/pubs/route'
+import { deletePub } from '@/services/admin/pubs'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { toast } from '@/components/ui/use-toast'
 
 export type PubsProps = {
   id: string
@@ -25,10 +26,15 @@ export type PubsProps = {
   instagram: string
   recommendation: string
   cover: string
+  date: string
 }
 
 async function deleteSelectedPub(value: string) {
   await deletePub(value)
+
+  toast({
+    title: 'Bar removido com sucesso!'
+  })
 }
 
 export const columns: ColumnDef<PubsProps>[] = [
@@ -69,6 +75,20 @@ export const columns: ColumnDef<PubsProps>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
           Recomendado por:
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    }
+  },
+  {
+    accessorKey: 'date',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Data:
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )

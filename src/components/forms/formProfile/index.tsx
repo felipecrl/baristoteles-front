@@ -7,7 +7,7 @@ import * as z from 'zod'
 import { AiOutlineEdit } from 'react-icons/ai'
 import { RiLockPasswordLine } from 'react-icons/ri'
 
-import { updateProfile } from '@/app/api/profile/route'
+import { updateProfile } from '@/services/profile'
 
 import {
   Form,
